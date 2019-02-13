@@ -1,0 +1,15 @@
+print_seven:
+  li $v0, 1
+  li $a0, 7
+  syscall
+  j print_newline
+print_newline:
+  li $v0, 11
+  li $a0, '\n'
+  syscall
+  j exit
+exit:
+  li $v0, 10
+  syscall
+main:
+  j print_seven
