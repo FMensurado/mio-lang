@@ -7,11 +7,10 @@ ints = ['0' .. '9']
 ops = ['+', '-']
 
 data Exp
-  = Add Exp
+  = Cal String
         Exp
-  | Sub Exp
         Exp
-  | Int
+  | Const Int
   | Ep
   deriving (Show)
 
@@ -41,17 +40,34 @@ convertBack toks = l ++ r
         toks
 
 buildTree :: [String] -> Exp -> Exp
-buildTree [] x = x
 buildTree x Ep =
-  case last x of
-    "+" -> buildTree (init x) (Add Ep Ep)
-    "-" -> buildTree (init x) (Sub Ep Ep)
-    _ -> error "unsupported operator"
+  if head (last x) `elem` ops
+    then buildTree (init x) $ Cal (last x) Ep Ep
+    else error "unsupported operator"
+buildTree x (Cal op n Ep) =
+  let y = last x
+      ys = init x
+   in if head y `elem` ops
+        then Cal op n $ buildTree ys $ Cal y Ep Ep
+        else let z = read y :: Int
+              in buildTree ys $ Cal op n $ Const z
+buildTree x (Cal op Ep n) =
+  let y = last x
+      ys = init x
+   in if head y `elem` ops
+        then Cal op (buildTree ys $ Cal y Ep Ep) n
+        else let z = read y :: Int
+              in buildTree ys $ Cal op (Const z) n
+buildTree _ x = x
 
-simpleParser = convertBack . tokenizer
+buildTree' :: [String] -> Exp
+buildTree' = flip buildTree Ep
+
+simpleParser :: String -> Exp
+simpleParser = buildTree' . convertBack . tokenizer
 
 sourceCode :: String
-sourceCode = "14 + 2 - 5"
+sourceCode = "14 + 2 - 5 + 6"
 
 runCompiler :: IO ()
 runCompiler = putStrLn sourceCode
