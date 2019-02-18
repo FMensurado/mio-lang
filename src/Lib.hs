@@ -101,5 +101,8 @@ generator x =
 sourceCode :: String
 sourceCode = "14 + 2 - 5"
 
+compile :: String -> String
+compile = generator . simpleParser
+
 runCompiler :: IO ()
-runCompiler = putStrLn sourceCode
+runCompiler = putStrLn $ compile sourceCode
