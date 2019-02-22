@@ -1,20 +1,18 @@
-module Lib
-  ( runCompiler
-  ) where
+module Lib where
 
 import Control.Monad.Except
 import Control.Monad.Trans.Except
+import Data.List (intercalate)
 import System.Environment
 import System.IO
 
-import Generator (generator)
-import Parser (simpleParser)
-
-sourceCode :: String
-sourceCode = "14 + 2 - 5"
+import Expr (parser)
 
 compile :: String -> String
-compile = generator . simpleParser
+compile x =
+  case parser x of
+    Right y -> init $ intercalate "" $ map ((++ "\n\n") . show) y
+    Left e -> show e
 
 type FileBase = String
 

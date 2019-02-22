@@ -1,0 +1,11 @@
+type Add :: TFn [TNat,TNat] TNat
+
+let a:TNat = 1
+
+function add(a:TNat, b:TNat) -> TNat {  } => [( a+b )]
+
+function addAdd(a:TNat, b:TFn [TNat,TNat] TNat) -> TNat {  } => [b(a, 1)]
+
+function returnFn() -> TId "Add" {  } => [function (a:TNat, b:TNat) -> TNat {  } => [( a+b )]]
+
+function main() -> TUnit { function id(a:TNat) -> TNat {  } => [a] | let c:TNat = add(1, 2) | let d:TNat = addAdd(4, add) } => [unit]

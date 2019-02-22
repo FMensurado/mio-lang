@@ -1,0 +1,18 @@
+type Add :: Int Int -> Int
+
+let a:Int = 1
+
+fn add a:Int b:Int -> Int => a + b
+
+fn variant a:T b:(T Int -> T) -> T
+  => b <- a 1
+
+fn returnFn -> Add
+  => fn a:Int b:Int -> Int
+    => a + b
+
+fn main -> Unit
+  fn id a:Int -> Int => a
+  let c:Int = add <- 1 2
+  let d:Int = addAdd <- 4 add
+  => unit
