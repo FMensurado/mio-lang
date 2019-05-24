@@ -27,11 +27,9 @@ source-repository head
 
 library
   exposed-modules:
-      Lib
-      AST
-      Lit
-      Expr
-      Typing
+      Lexer
+      Syntax
+      Parser
   other-modules:
       Paths_mio_lang
   hs-source-dirs:
