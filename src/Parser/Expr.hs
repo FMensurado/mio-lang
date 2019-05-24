@@ -72,5 +72,5 @@ stmt =
     , proc <* lookAhead eol
     ]
 
-parser :: String -> Either Parser Error
+parser :: String -> Either ParseError [Expr]
 parser = runParser (many $ stmt <* (newline >> spaces)) () ""
