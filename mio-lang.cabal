@@ -30,6 +30,7 @@ library
       Lexer
       Syntax
       Parser
+      Lib
   other-modules:
       Paths_mio_lang
   hs-source-dirs:

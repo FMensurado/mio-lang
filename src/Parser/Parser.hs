@@ -78,7 +78,7 @@ functionParam = do
 
 functionBody :: Parser FnBody
 functionBody = do
-  body <- many expr
+  body <- toplevel
   reservedOp "=>"
   ret <- expr
   return (body, ret)
