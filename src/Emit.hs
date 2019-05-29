@@ -1,9 +1,11 @@
 module Emit where
 
 import Control.Monad.Except
+import Data.ByteString.Short.Internal
 
 import qualified Data.Map as Map
 
+import LLVM.AST.Type
 import LLVM.Module
 
 import qualified LLVM.AST as AST
@@ -14,11 +16,11 @@ import qualified LLVM.AST.FloatingPointPredicate as FP
 import Codegen
 import qualified Syntax as S
 
-toSig :: [String] -> [(AST.Type, AST.Name)]
+toSig :: [ShortByteString] -> [(AST.Type, AST.Name)]
 toSig = map (\x -> (double, AST.Name x))
 
 codegenTop :: S.Expr -> LLVM ()
-codegenTop (S.Function name args body) = do
+codegenTop (S.Fn name head body) = do
   define double name fnargs bls
   where
     fnargs = toSig args
@@ -32,10 +34,6 @@ codegenTop (S.Function name args body) = do
           store var (local (AST.Name a))
           assign a var
         cgen body >>= ret
-codegenTop (S.Extern name args) = do
-  external double name fnargs
-  where
-    fnargs = toSig args
 codegenTop exp = do
   define double "main" [] blks
   where
@@ -55,23 +53,20 @@ binops =
   Map.fromList [("+", fadd), ("-", fsub), ("*", fmul), ("/", fdiv), ("<", lt)]
 
 cgen :: S.Expr -> Codegen AST.Operand
-cgen (S.UnaryOp op a) = do
-  cgen $ S.Call ("unary" ++ op) [a]
-cgen (S.BinaryOp "=" (S.Var var) val) = do
-  a <- getvar var
-  cval <- cgen val
-  store a cval
-  return cval
-cgen (S.BinaryOp op a b) = do
+--cgen (S.BinOp "=" (S.Var var) val) = do
+--  a <- getvar var
+--  cval <- cgen val
+--  store a cval
+--  return cval
+cgen (S.BinOp op a b) = do
   case Map.lookup op binops of
     Just f -> do
       ca <- cgen a
       cb <- cgen b
       f ca cb
     Nothing -> error "No such operator"
-cgen (S.Var x) = getvar x >>= load
 cgen (S.Float n) = return $ cons $ C.Float (F.Double n)
-cgen (S.Call fn args) = do
+cgen (S.App fn args) = do
   largs <- mapM cgen args
   call (externf (AST.Name fn)) largs
 
