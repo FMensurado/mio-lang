@@ -18,7 +18,6 @@ import qualified LLVM.AST as AST
 import qualified LLVM.AST.Attribute as A
 import qualified LLVM.AST.CallingConvention as CC
 import qualified LLVM.AST.Constant as C
-import qualified LLVM.AST.Linkage as L
 
 type Names = Map.Map ShortByteString Int
 
@@ -58,8 +57,8 @@ addDefn d = do
   defs <- gets moduleDefinitions
   modify $ \s -> s {moduleDefinitions = defs ++ [d]}
 
-define :: Type -> ShortByteString -> [(Type, Name)] -> [BasicBlock] -> LLVM ()
-define retty label argtys body =
+function :: Type -> ShortByteString -> [(Type, Name)] -> [BasicBlock] -> LLVM ()
+function retty label argtys body =
   addDefn $
   GlobalDefinition $
   functionDefaults
@@ -67,18 +66,6 @@ define retty label argtys body =
     , parameters = ([Parameter ty nm [] | (ty, nm) <- argtys], False)
     , returnType = retty
     , basicBlocks = body
-    }
-
-external :: Type -> ShortByteString -> [(Type, Name)] -> LLVM ()
-external retty label argtys =
-  addDefn $
-  GlobalDefinition $
-  functionDefaults
-    { name = Name label
-    , linkage = L.External
-    , parameters = ([Parameter ty nm [] | (ty, nm) <- argtys], False)
-    , returnType = retty
-    , basicBlocks = []
     }
 
 entry :: Codegen Name
@@ -179,12 +166,6 @@ fmul a b = instr $ FMul noFastMathFlags a b []
 
 fdiv :: Operand -> Operand -> Codegen Operand
 fdiv a b = instr $ FDiv noFastMathFlags a b []
-
-br :: Name -> Codegen (Named Terminator)
-br val = terminator $ Do $ Br val []
-
-cbr :: Operand -> Name -> Name -> Codegen (Named Terminator)
-cbr cond tr fl = terminator $ Do $ CondBr cond tr fl []
 
 ret :: Operand -> Codegen (Named Terminator)
 ret val = terminator $ Do $ Ret (Just val) []

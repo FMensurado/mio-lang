@@ -44,13 +44,7 @@ codegenTop exp = do
         setBlock entry
         cgen exp >>= ret
 
-lt :: AST.Operand -> AST.Operand -> Codegen AST.Operand
-lt a b = do
-  test <- fcmp FP.ULT a b
-  uitofp double test
-
-binops =
-  Map.fromList [("+", fadd), ("-", fsub), ("*", fmul), ("/", fdiv), ("<", lt)]
+binops = Map.fromList [("+", fadd), ("-", fsub), ("*", fmul), ("/", fdiv)]
 
 cgen :: S.Expr -> Codegen AST.Operand
 --cgen (S.BinOp "=" (S.Var var) val) = do
